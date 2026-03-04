@@ -1,0 +1,45 @@
+
+# JUCE / build outputs
+
+Builds/
+
+cmake-build*/
+
+out/
+
+bin/
+
+*.sdf
+
+*.ipch
+
+*.opensdf
+
+*.VC.db
+
+*.VC.VC.opendb
+
+.vs/
+
+
+
+# macOS
+
+.DS_Store
+
+
+
+# Logs
+
+*.log
+
+
+
+# Plugin binaries
+
+*.vst3
+
+*.component
+
+*.app
+
