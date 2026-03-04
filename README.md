@@ -50,11 +50,3 @@ If you want VST/AU formats, make sure the corresponding plugin formats are enabl
 
 - If the plugin or host crashes during parameter access, verify that `AudioProcessorValueTreeState` (`apvts`) is constructed before UI attachments are created and that attachments use the correct parameter IDs.
 - Check parameter default values and ranges in `PluginProcessor.cpp::createParameters()`.
-
-## Contributing
-
-Contributions are welcome. Please fork the repository, make changes on a branch, and open a pull request.
-
-## License
-
-Add a license file (e.g., `LICENSE`) to clarify the project license.
