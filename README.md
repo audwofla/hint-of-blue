@@ -46,7 +46,3 @@ If you want VST/AU formats, make sure the corresponding plugin formats are enabl
 - Increase `Drive` to add distortion (non-linear soft clipping).
 - Tweak `Bias` to offset the waveform before clipping (useful for asymmetrical distortion).
 
-## Troubleshooting
-
-- If the plugin or host crashes during parameter access, verify that `AudioProcessorValueTreeState` (`apvts`) is constructed before UI attachments are created and that attachments use the correct parameter IDs.
-- Check parameter default values and ranges in `PluginProcessor.cpp::createParameters()`.
