@@ -46,7 +46,7 @@ HintofblueAudioProcessor::createParameters()
         "drive", 
         "Drive",    
         juce::NormalisableRange<float>(1.0f, 24.0f, 0.01f),
-        0.0f              
+        1.0f              
     ));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
@@ -126,8 +126,16 @@ void HintofblueAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-}
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = (juce::uint32)samplesPerBlock;
+    spec.numChannels = (juce::uint32)getTotalNumOutputChannels();
 
+    oversampling.reset();
+    oversampling.initProcessing((size_t)samplesPerBlock);
+
+    setLatencySamples((int)oversampling.getLatencyInSamples());
+
+}
 void HintofblueAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
@@ -166,7 +174,6 @@ void HintofblueAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-
 	//auto autogainDb = apvts.getRawParameterValue("outputGainDb")->load();   
 	//auto gainLin = juce::Decibels::decibelsToGain(autogainDb);
 	//buffer.applyGain(gainLin);
@@ -195,19 +202,28 @@ void HintofblueAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
 	auto bias = apvts.getRawParameterValue("bias")->load();
     float biasComp = std::tanh(bias);
 
-    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
-    {
-        float* x = buffer.getWritePointer(ch);
+	juce::dsp::AudioBlock<float> block(buffer);
+	auto osBlock = oversampling.processSamplesUp(block);
 
-        for (int i = 0; i < buffer.getNumSamples(); ++i)
+    const int osNumCh = (int)osBlock.getNumChannels();
+    const int osNumSamp = (int)osBlock.getNumSamples();
+
+    for (int ch = 0; ch < osNumCh; ++ch)
+    {
+        float* x = osBlock.getChannelPointer((size_t)ch);
+
+        for (int i = 0; i < osNumSamp; ++i)
         {
-			float v = x[i] * inputGain;
-			v *= drive;
+            float v = x[i] * inputGain;
+            v *= drive;
+
             float y = std::tanh(v + bias) - biasComp;
+
             x[i] = y * outTrim;
         }
     }
 
+    oversampling.processSamplesDown(block);
 
 }
 

@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <juce_dsp/juce_dsp.h>
 
 //==============================================================================
 /**
@@ -56,6 +57,18 @@ public:
 	juce::AudioProcessorValueTreeState& getAPVTS() { return apvts; }
 
 private:
+	juce::dsp::ProcessSpec spec{};
+
+    static constexpr int osFactorPower = 2;
+
+    juce::dsp::Oversampling<float> oversampling{
+        (size_t)2,                             
+        (size_t)osFactorPower,
+        juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR,
+        true                                       
+    };
+    //juce::dsp::IIR::Filter<float> dcBlockL, dcBlockR;
+
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
 
     juce::AudioProcessorValueTreeState apvts;
