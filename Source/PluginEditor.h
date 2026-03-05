@@ -32,14 +32,17 @@ private:
 	juce::Slider inputGainSlider;
     juce::Slider driveSlider;
 	juce::Slider biasSlider;
+    juce::ComboBox driveTypeBox;
 
     juce::Label inputGainLabel;
 	juce::Label driveLabel;
     juce::Label biasLabel;
+	juce::Label driveTypeLabel;
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputGainAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> biasAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> driveTypeAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HintofblueAudioProcessorEditor)
 };

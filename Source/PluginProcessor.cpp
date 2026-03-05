@@ -49,6 +49,13 @@ HintofblueAudioProcessor::createParameters()
         1.0f              
     ));
 
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        "driveType",
+        "Drive Type",
+        juce::StringArray{ "tanh", "atan" },
+        0
+    ));
+
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "bias", 
         "Bias",    
@@ -196,11 +203,13 @@ void HintofblueAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
 	auto inputGainDb = apvts.getRawParameterValue("inputGainDb")->load();
 	auto inputGain = juce::Decibels::decibelsToGain(inputGainDb);
 
+	auto driveType = (int)apvts.getRawParameterValue("driveType")->load();
     auto drive = apvts.getRawParameterValue("drive")->load();
     auto outTrim = 1.0f / std::sqrt(std::max(1.0f, drive));
 
 	auto bias = apvts.getRawParameterValue("bias")->load();
-    float biasComp = std::tanh(bias);
+    float biasCompTanh = std::tanh(bias);
+	float biasCompAtan = std::atan(bias);
 
 	juce::dsp::AudioBlock<float> block(buffer);
 	auto osBlock = oversampling.processSamplesUp(block);
@@ -217,7 +226,16 @@ void HintofblueAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             float v = x[i] * inputGain;
             v *= drive;
 
-            float y = std::tanh(v + bias) - biasComp;
+            float y;
+            if (driveType == 0)
+            {
+                y = std::tanh(v + biasCompTanh) - biasCompTanh;
+            } 
+            else
+            {
+                float biasCompAtan = std::atan(bias);
+				y = std::atan(v + biasCompAtan) - biasCompAtan;
+            }
 
             x[i] = y * outTrim;
         }

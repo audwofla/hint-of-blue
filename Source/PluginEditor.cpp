@@ -15,42 +15,65 @@ HintofblueAudioProcessorEditor::HintofblueAudioProcessorEditor (HintofblueAudioP
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (600, 300);
+    setSize (600, 350);
 
 	inputGainSlider.setSliderStyle(juce::Slider::Rotary);
 	inputGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 70, 20);
     addAndMakeVisible(inputGainSlider);
+
+    inputGainLabel.setText("Input", juce::dontSendNotification);
+    inputGainLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(inputGainLabel);
+
+    inputGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+        audioProcessor.getAPVTS(), "inputGainDb", inputGainSlider
+    );
 
 
     driveSlider.setSliderStyle(juce::Slider::Rotary);
     driveSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 70, 20);
     addAndMakeVisible(driveSlider);
 
-	biasSlider.setSliderStyle(juce::Slider::Rotary);
-	biasSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 70, 20);
-	addAndMakeVisible(biasSlider);
-
     driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
         audioProcessor.getAPVTS(), "drive", driveSlider
     );
-    inputGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-        audioProcessor.getAPVTS(), "inputGainDb", inputGainSlider
-    );
-    biasAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-        audioProcessor.getAPVTS(), "bias", biasSlider
-	);
-
-    inputGainLabel.setText("Input", juce::dontSendNotification);
-    inputGainLabel.setJustificationType(juce::Justification::centred);
-    addAndMakeVisible(inputGainLabel);
 
     driveLabel.setText("Drive", juce::dontSendNotification);
     driveLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(driveLabel);
 
+	biasSlider.setSliderStyle(juce::Slider::Rotary);
+	biasSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 70, 20);
+	addAndMakeVisible(biasSlider);
+
+    biasAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+        audioProcessor.getAPVTS(), "bias", biasSlider
+    );
+
     biasLabel.setText("Bias", juce::dontSendNotification);
     biasLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(biasLabel);
+
+    driveTypeBox.addItem("tanh", 1);
+    driveTypeBox.addItem("atan", 2);
+    driveTypeBox.setJustificationType(juce::Justification::centred);
+    driveTypeBox.setEditableText(false);
+    driveTypeBox.setTextWhenNothingSelected("Drive Type");
+    driveTypeBox.setSelectedItemIndex(0, juce::dontSendNotification); 
+    addAndMakeVisible(driveTypeBox);
+
+    driveTypeLabel.setText("Type", juce::dontSendNotification);
+    driveTypeLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(driveTypeLabel);
+
+    driveTypeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
+        audioProcessor.getAPVTS(),
+        "driveType",
+        driveTypeBox
+    );
+
+
+
 
 }
 
@@ -74,7 +97,6 @@ void HintofblueAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     auto area = getLocalBounds().reduced(40);
-
     auto colWidth = area.getWidth() / 3;
 
     auto col1 = area.removeFromLeft(colWidth);
@@ -82,11 +104,16 @@ void HintofblueAudioProcessorEditor::resized()
     auto col3 = area;
 
     inputGainSlider.setBounds(col1.removeFromTop(200));
-    inputGainLabel.setBounds(col1);
+    inputGainLabel.setBounds(col1.removeFromTop(24));
+
+    auto labelArea = col2.removeFromTop(20);
+    driveTypeLabel.setBounds(labelArea.withSizeKeepingCentre(120, 20));
+    auto typeArea = col2.removeFromTop(28);
+    driveTypeBox.setBounds(typeArea.withSizeKeepingCentre(120, 28));
 
     driveSlider.setBounds(col2.removeFromTop(200));
-    driveLabel.setBounds(col2);
+    driveLabel.setBounds(col2.removeFromTop(24));
 
     biasSlider.setBounds(col3.removeFromTop(200));
-    biasLabel.setBounds(col3);
+    biasLabel.setBounds(col3.removeFromTop(24));
 }
